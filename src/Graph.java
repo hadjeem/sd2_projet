@@ -6,7 +6,7 @@ import java.io.IOException;
 
 public class Graph {
 
-  String ligne;
+  //map of cities
 
   public Graph(File cities, File roads) {
     readFile(cities);
