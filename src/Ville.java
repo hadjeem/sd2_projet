@@ -12,5 +12,19 @@ public class Ville {
     this.latitude = latitude;
   }
 
+  public int getId() {
+    return id;
+  }
 
+  public String getNom() {
+    return nom;
+  }
+
+  public double getLongitude() {
+    return longitude;
+  }
+
+  public double getLatitude() {
+    return latitude;
+  }
 }
