@@ -4,11 +4,14 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 public class Graph {
+
   private Map<Ville, Set<Route>> trajets = new HashMap<>();
+  private Map <String, Ville> nomsVilles = new HashMap<>();
 
   //map of cities
 
@@ -34,12 +37,12 @@ public class Graph {
       String ligne;
       while ((ligne = lecteur.readLine()) != null) {
         String[] mots = ligne.split(",");
-
-        // Parcourir et afficher chaque mot
-        for (String mot : mots) {
-          System.out.println(mot.trim()); // trim() pour enlever les espaces blancs autour du mot
-        }
+        Ville v = new Ville(Integer.parseInt(mots[0]), mots[1], Double.parseDouble(mots[3]),
+            Double.parseDouble(mots[4]));
+      trajets.put(v,new HashSet<>());
       }
+
+
       // Fermeture du BufferedReader
       lecteur.close();
     } catch (IOException e) {
