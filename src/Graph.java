@@ -3,16 +3,14 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class Graph {
 
   private Map<Ville, Set<Route>> trajets = new HashMap<>();
   private Map<Integer,Ville> idsVilles = new HashMap<>();
   private Map <String, Ville> nomsVilles = new HashMap<>();
+  private List<Ville> bfsListe =new LinkedList<>();
 
   //map of cities
 
@@ -21,7 +19,13 @@ public class Graph {
   }
 
   public void calculerItineraireMinimisantNombreRoutes(String depart, String arrivee) {
+    Ville villeDepart = nomsVilles.get(depart);
+    Ville villeArrive = nomsVilles.get(arrivee);
+    Set<Route> routesDepart = new HashSet<>();
+    routesDepart = trajets.get(villeDepart);
+    for (Route route : routesDepart) {
 
+    }
 
   }
 

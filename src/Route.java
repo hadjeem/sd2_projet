@@ -8,4 +8,11 @@ public class Route {
     this.arrivee = arrivee;
   }
 
+  public Ville getDepart() {
+    return depart;
+  }
+
+  public Ville getArrivee() {
+    return arrivee;
+  }
 }
