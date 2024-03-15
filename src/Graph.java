@@ -23,8 +23,12 @@ public class Graph {
     Ville villeArrive = nomsVilles.get(arrivee);
     Set<Route> routesDepart = new HashSet<>();
     routesDepart = trajets.get(villeDepart);
-    for (Route route : routesDepart) {
-
+    for (Route r : routesDepart) {
+      bfsListe.add(r.getArrivee());
+    }
+    for (Ville v : bfsListe) {
+      if (v.equals(villeArrive)) {
+      }
     }
 
   }
