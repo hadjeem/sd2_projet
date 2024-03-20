@@ -27,4 +27,8 @@ public class Ville {
   public double getLatitude() {
     return latitude;
   }
+
+    public String toString() {
+        return nom;
+    }
 }

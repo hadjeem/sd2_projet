@@ -7,67 +7,205 @@ import java.util.*;
 
 public class Graph {
 
-  private Map<Ville, Set<Route>> trajets = new HashMap<>();
-  private Map<Integer,Ville> idsVilles = new HashMap<>();
-  private Map <String, Ville> nomsVilles = new HashMap<>();
-  private List<Ville> bfsListe =new LinkedList<>();
+    private Map<Ville, Set<Route>> trajets = new HashMap<>();
+    private Map<Integer, Ville> idsVilles = new HashMap<>();
+    private Map<String, Ville> nomsVilles = new HashMap<>();
+    private LinkedList<Ville> bfsListe = new LinkedList<>();
 
-  //map of cities
+    //map of cities
 
-  public Graph(File cities, File roads) {
-    readFile(cities, roads);
-  }
-
-  public void calculerItineraireMinimisantNombreRoutes(String depart, String arrivee) {
-    Ville villeDepart = nomsVilles.get(depart);
-    Ville villeArrive = nomsVilles.get(arrivee);
-    Set<Route> routesDepart = new HashSet<>();
-    routesDepart = trajets.get(villeDepart);
-    for (Route r : routesDepart) {
-      bfsListe.add(r.getArrivee());
-    }
-    for (Ville v : bfsListe) {
-      if (v.equals(villeArrive)) {
-      }
+    public Graph(File cities, File roads) {
+        readFile(cities, roads);
     }
 
-  }
+    public void calculerItineraireMinimisantNombreRoutes(String depart, String arrivee) {
 
-  public void calculerItineraireMinimisantKm(String depart, String arrivee) {
+        //get the city of departure and arrival
+        Ville villeDepart = nomsVilles.get(depart);
+        Ville villeArrive = nomsVilles.get(arrivee);
 
-  }
+        HashSet<Ville> villesVisite = new HashSet<>();
+        HashMap<Ville, Route> chemin = new HashMap<>();
 
-  //function for reading the file
-  public void readFile(File file,File file2) {
-    try {
-      // Création d'un BufferedReader pour lire le fichier
-      BufferedReader lecteur = new BufferedReader(new FileReader(file));
-      BufferedReader lecteur2 = new BufferedReader(new FileReader(file2));
+        bfsListe.add(villeDepart);
+        villesVisite.add(villeDepart);
 
-      // Lecture ligne par ligne
-      String ligne;
-      while ((ligne = lecteur.readLine()) != null) {
-        String[] mots = ligne.split(",");
-        Ville v = new Ville(Integer.parseInt(mots[0]), mots[1], Double.parseDouble(mots[2]),
-            Double.parseDouble(mots[3]));
-        trajets.put(v,new HashSet<>());
-        idsVilles.put(v.getId(),v);
-        nomsVilles.put(v.getNom(),v);
-      }
+        while (chemin.get(villeArrive) == null && !bfsListe.isEmpty()) {
+            Ville v = bfsListe.pop();
 
-      String ligne2;
-      while((ligne2 = lecteur2.readLine())!=null) {
-        String[] mots = ligne.split(",");
-        Route r = new Route(idsVilles.get(mots[0]),idsVilles.get(mots[1]));
-        Route r2 = new Route(idsVilles.get(mots[1]),idsVilles.get(mots[0]));
-      }
+            for (Route r : trajets.get(v)) {
+                if (!villesVisite.contains(r.getArrivee())) {
 
-      // Fermeture du BufferedReader
-      lecteur.close();
-    } catch (IOException e) {
-      e.printStackTrace();
+                    villesVisite.add(r.getArrivee());
+                    bfsListe.add(r.getArrivee());
+                    chemin.put(r.getArrivee(), r);
+
+                    if (r.getArrivee().equals(villeArrive)) {
+                        break;
+                    }
+                }
+
+
+            }
+        }
+
+        int nbRoutes = 0;
+        double distance = 0;
+
+        //stack to print in right way
+        Stack<Route> routesStack = new Stack<>();
+
+        //stacking the routes and calculating the distance
+        if (chemin.get(villeArrive) != null) {
+            do {
+                nbRoutes++;
+                distance = distance + Util.distance(villeArrive.getLatitude(),
+                        villeArrive.getLongitude(),
+                        chemin.get(villeArrive).getDepart().getLatitude(),
+                        chemin.get(villeArrive).getDepart().getLongitude());
+                routesStack.add(chemin.get(villeArrive));
+
+                villeArrive = chemin.get(villeArrive).getDepart();
+            } while (chemin.get(villeArrive).getDepart() != villeDepart);
+        }
+
+
+        //final iteration for villeDepart
+        nbRoutes++;
+        routesStack.add(chemin.get(villeArrive));
+
+        System.out.println("Itinéraire de " + depart + " à " + arrivee + ":" + nbRoutes + " routes" + " et " + distance + " km");
+        //unstack to print in right way
+        while (!routesStack.isEmpty()) {
+            Route r = routesStack.pop();
+            System.out.println(r.getDepart() + " -> " + r.getArrivee() + " (" + Util.distance(r.getArrivee(),r.getDepart()) + " km)");
+        }
+
     }
-  }
+
+    public void calculerItineraireMinimisantKm(String depart, String arrivee) {
+
+            //get the city of departure and arrival
+            Ville villeDepart = nomsVilles.get(depart);
+            Ville villeArrive = nomsVilles.get(arrivee);
+
+            HashMap<Ville, Route> chemin = new HashMap<>();
+            HashMap<Ville, Double> distances = new HashMap<>();
+            PriorityQueue<Ville> priorityQueue = new PriorityQueue<>(Comparator.comparingDouble(distances::get));
+            HashSet<Ville> villesVisite = new HashSet<>();
+
+            bfsListe.add(villeDepart);
+            villesVisite.add(villeDepart);
+
+            for (Ville v : nomsVilles.values()){
+                distances.put(v, Double.MAX_VALUE);
+            }
+
+            distances.put(villeDepart, 0.0);
+            priorityQueue.add(villeDepart);
+
+            while (!priorityQueue.isEmpty()) {
+                Ville v = priorityQueue.poll();
+                villesVisite.add(v);
+
+                if (v.equals(villeArrive)) {
+                    break;
+                }
+
+                for (Route r : trajets.get(v)) {
+                    Ville ville = r.getArrivee();
+                    if (!villesVisite.contains(ville)) {
+                        double newDistance = distances.get(v) + Util.distance(r.getArrivee(), r.getDepart());
+                        if (newDistance < distances.get(r.getArrivee())) {
+                            distances.put(r.getArrivee(), newDistance);
+                            chemin.put(r.getArrivee(), r);
+                            priorityQueue.add(r.getArrivee());
+                        }
+                    }
+                }
+            }
+
+            int nbRoutes = 0;
+            double distance = 0;
+
+            //stack to print in right way
+            Stack<Route> routesStack = new Stack<>();
+
+            if (chemin.get(villeArrive) != null) {
+                do {
+                    nbRoutes++;
+                    distance = distance + Util.distance(villeArrive.getLatitude(),
+                            villeArrive.getLongitude(),
+                            chemin.get(villeArrive).getDepart().getLatitude(),
+                            chemin.get(villeArrive).getDepart().getLongitude());
+                    routesStack.add(chemin.get(villeArrive));
+
+                    villeArrive = chemin.get(villeArrive).getDepart();
+                } while (chemin.get(villeArrive).getDepart() != villeDepart);
+            }
+
+            //final iteration for villeDepart
+            nbRoutes++;
+            distance = distance + Util.distance(villeArrive.getLatitude(),
+                    villeArrive.getLongitude(),
+                    chemin.get(villeArrive).getDepart().getLatitude(),
+                    chemin.get(villeArrive).getDepart().getLongitude());
+            routesStack.add(chemin.get(villeArrive));
+
+            System.out.println("Itinéraire de " + depart + " à " + arrivee + ":" + nbRoutes + " routes" + " et " + distance + " km");
+            while(!routesStack.isEmpty()){
+                Route r = routesStack.pop();
+                System.out.println(r.getDepart() + " -> " + r.getArrivee() + " (" + Util.distance(r.getArrivee(),r.getDepart()) + " km)");
+            }
+
+    }
+
+    //function for reading the file
+    public void readFile(File file, File file2) {
+        try {
+            // Création d'un BufferedReader pour lire le fichier
+            BufferedReader lecteur = new BufferedReader(new FileReader(file));
+            BufferedReader lecteur2 = new BufferedReader(new FileReader(file2));
+
+            // Lecture ligne par ligne
+            String ligne;
+            while ((ligne = lecteur.readLine()) != null) {
+                String[] mots = ligne.split(",");
+                Ville v = new Ville(Integer.parseInt(mots[0]),
+                        mots[1],
+                        Double.parseDouble(mots[2]),
+                        Double.parseDouble(mots[3]));
+                trajets.put(v, new HashSet<>());
+                idsVilles.put(v.getId(), v);
+                nomsVilles.put(v.getNom(), v);
+            }
+
+            ArrayList<Route> routes = new ArrayList<>();
+            String ligne2;
+
+            while ((ligne2 = lecteur2.readLine()) != null) {
+                String[] mots = ligne2.split(",");
+                Integer d1 = Integer.parseInt(mots[0]);
+                Integer d2 = Integer.parseInt(mots[1]);
+                Route r = new Route(idsVilles.get(d2), idsVilles.get(d1));
+                Route r2 = new Route(idsVilles.get(d1), idsVilles.get(d2));
+                routes.add(r);
+                routes.add(r2);
+
+            }
+
+            for (Route r : routes) {
+                trajets.get(r.getDepart()).add(r);
+            }
+
+
+            // Fermeture du BufferedReader
+            lecteur.close();
+            lecteur2.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 
 }

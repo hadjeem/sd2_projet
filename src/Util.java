@@ -18,4 +18,12 @@ public class Util {
 
         return distance;
     }
+
+    //lazy way ^^ OwO
+    public static double distance(Ville v1, Ville v2) {
+        return distance(
+                v1.getLongitude(),v1.getLatitude(),
+
+                v2.getLongitude(),v2.getLatitude());
+    }
 }

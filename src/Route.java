@@ -15,4 +15,11 @@ public class Route {
   public Ville getArrivee() {
     return arrivee;
   }
+
+    public String toString() {
+        return depart.getNom() + " -> " + arrivee.getNom();
+    }
 }
+
+
+
