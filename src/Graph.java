@@ -53,6 +53,11 @@ public class Graph {
             }
         }
 
+        // If no route was found to the destination city, throw an exception
+        if (chemin.get(villeArrive) == null) {
+            throw new RuntimeException("No route found from " + depart + " to " + arrivee);
+        }
+
         int nbRoutes = 0;
         double distance = distances.get(villeArrive) != null ? distances.get(villeArrive) : 0;
 
@@ -60,13 +65,11 @@ public class Graph {
         Stack<Route> routesStack = new Stack<>();
 
         //stacking the routes
-        if (chemin.get(villeArrive) != null) {
-            do {
-                nbRoutes++;
-                routesStack.add(chemin.get(villeArrive));
-                villeArrive = chemin.get(villeArrive).getDepart();
-            } while (chemin.get(villeArrive).getDepart() != villeDepart);
-        }
+        do {
+            nbRoutes++;
+            routesStack.add(chemin.get(villeArrive));
+            villeArrive = chemin.get(villeArrive).getDepart();
+        } while (chemin.get(villeArrive).getDepart() != villeDepart);
 
         //final iteration for villeDepart
         nbRoutes++;
