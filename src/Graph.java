@@ -124,36 +124,27 @@ public class Graph {
             }
         }
 
+        if (chemin.get(villeArrive) == null) {
+            throw new RuntimeException("No route found from " + depart + " to " + arrivee);
+        }
+
         int nbRoutes = 0;
         double distance = 0;
 
         //stack to print in right way
-        Stack<Route> routesStack = new Stack<>();
-
-        if (chemin.get(villeArrive) != null) {
-            do {
-                nbRoutes++;
-                distance = distance + Util.distance(villeArrive.getLatitude(),
-                    villeArrive.getLongitude(),
-                    chemin.get(villeArrive).getDepart().getLatitude(),
-                    chemin.get(villeArrive).getDepart().getLongitude());
-                routesStack.add(chemin.get(villeArrive));
-
-                villeArrive = chemin.get(villeArrive).getDepart();
-            } while (chemin.get(villeArrive).getDepart() != villeDepart);
+        Deque<Route> itineraire = new LinkedList<>();
+        Ville v = villeArrive;
+        while (v != villeDepart) {
+            Route r = chemin.get(v);
+            itineraire.addFirst(r);
+            distance += Util.distance(r.getArrivee(), r.getDepart());
+            v = r.getDepart();
+            nbRoutes++;
         }
 
-        //final iteration for villeDepart
-        nbRoutes++;
-        distance = distance + Util.distance(villeArrive.getLatitude(),
-            villeArrive.getLongitude(),
-            chemin.get(villeArrive).getDepart().getLatitude(),
-            chemin.get(villeArrive).getDepart().getLongitude());
-        routesStack.add(chemin.get(villeArrive));
-
         System.out.println("Itinéraire de " + depart + " à " + arrivee + ":" + nbRoutes + " routes" + " et " + distance + " km");
-        while(!routesStack.isEmpty()){
-            Route r = routesStack.pop();
+        while(!itineraire.isEmpty()){
+            Route r = itineraire.poll();
             System.out.println(r.getDepart() + " -> " + r.getArrivee() + " (" + Util.distance(r.getArrivee(),r.getDepart()) + " km)");
         }
 
