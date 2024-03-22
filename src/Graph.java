@@ -86,78 +86,76 @@ public class Graph {
 
     public void calculerItineraireMinimisantKm(String depart, String arrivee) {
 
-            //get the city of departure and arrival
-            Ville villeDepart = nomsVilles.get(depart);
-            Ville villeArrive = nomsVilles.get(arrivee);
+        //get the city of departure and arrival
+        Ville villeDepart = nomsVilles.get(depart);
+        Ville villeArrive = nomsVilles.get(arrivee);
 
-            HashMap<Ville, Route> chemin = new HashMap<>();
-            HashMap<Ville, Double> distances = new HashMap<>();
-            PriorityQueue<Ville> priorityQueue = new PriorityQueue<>(Comparator.comparingDouble(distances::get));
-            HashSet<Ville> villesVisite = new HashSet<>();
+        HashMap<Ville, Route> chemin = new HashMap<>();
+        HashMap<Ville, Double> distances = new HashMap<>();
+        TreeMap<Double, Ville> treeMap = new TreeMap<>();
+        HashSet<Ville> villesVisite = new HashSet<>();
 
-            bfsListe.add(villeDepart);
-            villesVisite.add(villeDepart);
+        for (Ville v : nomsVilles.values()){
+            distances.put(v, Double.MAX_VALUE);
+        }
 
-            for (Ville v : nomsVilles.values()){
-                distances.put(v, Double.MAX_VALUE);
+        distances.put(villeDepart, 0.0);
+        treeMap.put(0.0, villeDepart);
+
+        while (!treeMap.isEmpty()) {
+            Map.Entry<Double, Ville> entry = treeMap.pollFirstEntry();
+            Ville v = entry.getValue();
+            villesVisite.add(v);
+
+            if (v.equals(villeArrive)) {
+                break;
             }
 
-            distances.put(villeDepart, 0.0);
-            priorityQueue.add(villeDepart);
-
-            while (!priorityQueue.isEmpty()) {
-                Ville v = priorityQueue.poll();
-                villesVisite.add(v);
-
-                if (v.equals(villeArrive)) {
-                    break;
-                }
-
-                for (Route r : trajets.get(v)) {
-                    Ville ville = r.getArrivee();
-                    if (!villesVisite.contains(ville)) {
-                        double newDistance = distances.get(v) + Util.distance(r.getArrivee(), r.getDepart());
-                        if (newDistance < distances.get(r.getArrivee())) {
-                            distances.put(r.getArrivee(), newDistance);
-                            chemin.put(r.getArrivee(), r);
-                            priorityQueue.add(r.getArrivee());
-                        }
+            for (Route r : trajets.get(v)) {
+                Ville ville = r.getArrivee();
+                if (!villesVisite.contains(ville)) {
+                    double newDistance = distances.get(v) + Util.distance(r.getArrivee(), r.getDepart());
+                    if (newDistance < distances.get(r.getArrivee())) {
+                        distances.put(r.getArrivee(), newDistance);
+                        chemin.put(r.getArrivee(), r);
+                        treeMap.put(newDistance, r.getArrivee());
                     }
                 }
             }
+        }
 
-            int nbRoutes = 0;
-            double distance = 0;
+        int nbRoutes = 0;
+        double distance = 0;
 
-            //stack to print in right way
-            Stack<Route> routesStack = new Stack<>();
+        //stack to print in right way
+        Stack<Route> routesStack = new Stack<>();
 
-            if (chemin.get(villeArrive) != null) {
-                do {
-                    nbRoutes++;
-                    distance = distance + Util.distance(villeArrive.getLatitude(),
-                            villeArrive.getLongitude(),
-                            chemin.get(villeArrive).getDepart().getLatitude(),
-                            chemin.get(villeArrive).getDepart().getLongitude());
-                    routesStack.add(chemin.get(villeArrive));
-
-                    villeArrive = chemin.get(villeArrive).getDepart();
-                } while (chemin.get(villeArrive).getDepart() != villeDepart);
-            }
-
-            //final iteration for villeDepart
-            nbRoutes++;
-            distance = distance + Util.distance(villeArrive.getLatitude(),
+        if (chemin.get(villeArrive) != null) {
+            do {
+                nbRoutes++;
+                distance = distance + Util.distance(villeArrive.getLatitude(),
                     villeArrive.getLongitude(),
                     chemin.get(villeArrive).getDepart().getLatitude(),
                     chemin.get(villeArrive).getDepart().getLongitude());
-            routesStack.add(chemin.get(villeArrive));
+                routesStack.add(chemin.get(villeArrive));
 
-            System.out.println("Itinéraire de " + depart + " à " + arrivee + ":" + nbRoutes + " routes" + " et " + distance + " km");
-            while(!routesStack.isEmpty()){
-                Route r = routesStack.pop();
-                System.out.println(r.getDepart() + " -> " + r.getArrivee() + " (" + Util.distance(r.getArrivee(),r.getDepart()) + " km)");
-            }
+                villeArrive = chemin.get(villeArrive).getDepart();
+            } while (chemin.get(villeArrive).getDepart() != villeDepart);
+        }
+
+        //final iteration for villeDepart
+        nbRoutes++;
+        distance = distance + Util.distance(villeArrive.getLatitude(),
+            villeArrive.getLongitude(),
+            chemin.get(villeArrive).getDepart().getLatitude(),
+            chemin.get(villeArrive).getDepart().getLongitude());
+        routesStack.add(chemin.get(villeArrive));
+
+        System.out.println("Itinéraire de " + depart + " à " + arrivee + ":" + nbRoutes + " routes" + " et " + distance + " km");
+        while(!routesStack.isEmpty()){
+            Route r = routesStack.pop();
+            System.out.println(r.getDepart() + " -> " + r.getArrivee() + " (" + Util.distance(r.getArrivee(),r.getDepart()) + " km)");
+        }
 
     }
 
