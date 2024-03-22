@@ -26,9 +26,11 @@ public class Graph {
 
         HashSet<Ville> villesVisite = new HashSet<>();
         HashMap<Ville, Route> chemin = new HashMap<>();
+        HashMap<Ville, Double> distances = new HashMap<>();
 
         bfsListe.add(villeDepart);
         villesVisite.add(villeDepart);
+        distances.put(villeDepart, 0.0);
 
         while (chemin.get(villeArrive) == null && !bfsListe.isEmpty()) {
             Ville v = bfsListe.pop();
@@ -40,35 +42,31 @@ public class Graph {
                     bfsListe.add(r.getArrivee());
                     chemin.put(r.getArrivee(), r);
 
+                    // Calculate the distance right after the route is added to the map
+                    double newDistance = distances.get(v) + Util.distance(r.getArrivee(), r.getDepart());
+                    distances.put(r.getArrivee(), newDistance);
+
                     if (r.getArrivee().equals(villeArrive)) {
                         break;
                     }
                 }
-
-
             }
         }
 
         int nbRoutes = 0;
-        double distance = 0;
+        double distance = distances.get(villeArrive) != null ? distances.get(villeArrive) : 0;
 
         //stack to print in right way
         Stack<Route> routesStack = new Stack<>();
 
-        //stacking the routes and calculating the distance
+        //stacking the routes
         if (chemin.get(villeArrive) != null) {
             do {
                 nbRoutes++;
-                distance = distance + Util.distance(villeArrive.getLatitude(),
-                        villeArrive.getLongitude(),
-                        chemin.get(villeArrive).getDepart().getLatitude(),
-                        chemin.get(villeArrive).getDepart().getLongitude());
                 routesStack.add(chemin.get(villeArrive));
-
                 villeArrive = chemin.get(villeArrive).getDepart();
             } while (chemin.get(villeArrive).getDepart() != villeDepart);
         }
-
 
         //final iteration for villeDepart
         nbRoutes++;
