@@ -1,6 +1,5 @@
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
@@ -37,12 +36,11 @@ public class Graph {
 
             for (Route r : trajets.get(v)) {
                 if (!villesVisite.contains(r.getArrivee())) {
-
                     villesVisite.add(r.getArrivee());
                     bfsListe.add(r.getArrivee());
                     chemin.put(r.getArrivee(), r);
 
-                    double newDistance = distances.get(v) + Util.distance(r.getArrivee(), r.getDepart());
+                    double newDistance = distances.get(v) + r.getDistance();
                     distances.put(r.getArrivee(), newDistance);
 
                     if (r.getArrivee().equals(villeArrive)) {
@@ -107,7 +105,7 @@ public class Graph {
             for (Route r : trajets.get(v)) {
                 Ville ville = r.getArrivee();
                 if (!villesVisite.contains(ville)) {
-                    double newDistance = distances.get(v) + Util.distance(r.getArrivee(), r.getDepart());
+                    double newDistance = distances.get(v) + r.getDistance();
                     if (newDistance < distances.get(r.getArrivee())) {
                         distances.put(r.getArrivee(), newDistance);
                         chemin.put(r.getArrivee(), r);
@@ -129,7 +127,7 @@ public class Graph {
         while (v != villeDepart) {
             Route r = chemin.get(v);
             itineraire.addFirst(r);
-            distance += Util.distance(r.getArrivee(), r.getDepart());
+            distance += r.getDistance();
             v = r.getDepart();
             nbRoutes++;
         }
@@ -137,7 +135,7 @@ public class Graph {
         System.out.println("Itinéraire de " + depart + " à " + arrivee + ":" + nbRoutes + " routes" + " et " + distance + " km");
         while(!itineraire.isEmpty()){
             Route r = itineraire.poll();
-            System.out.println(r.getDepart() + " -> " + r.getArrivee() + " (" + Util.distance(r.getArrivee(),r.getDepart()) + " km)");
+            System.out.println(r.getDepart() + " -> " + r.getArrivee() + " (" + r.getDistance() + " km)");
         }
 
     }
@@ -167,8 +165,8 @@ public class Graph {
                 String[] mots = ligne2.split(",");
                 Integer d1 = Integer.parseInt(mots[0]);
                 Integer d2 = Integer.parseInt(mots[1]);
-                Route r = new Route(idsVilles.get(d2), idsVilles.get(d1));
-                Route r2 = new Route(idsVilles.get(d1), idsVilles.get(d2));
+                Route r = new Route(idsVilles.get(d2), idsVilles.get(d1), Util.distance(idsVilles.get(d2), idsVilles.get(d1)));
+                Route r2 = new Route(idsVilles.get(d1), idsVilles.get(d2), Util.distance(idsVilles.get(d1), idsVilles.get(d2)));
                 routes.add(r);
                 routes.add(r2);
 
