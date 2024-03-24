@@ -42,7 +42,6 @@ public class Graph {
                     bfsListe.add(r.getArrivee());
                     chemin.put(r.getArrivee(), r);
 
-                    // Calculate the distance right after the route is added to the map
                     double newDistance = distances.get(v) + Util.distance(r.getArrivee(), r.getDepart());
                     distances.put(r.getArrivee(), newDistance);
 
@@ -53,7 +52,6 @@ public class Graph {
             }
         }
 
-        // If no route was found to the destination city, throw an exception
         if (chemin.get(villeArrive) == null) {
             throw new RuntimeException("No route found from " + depart + " to " + arrivee);
         }
@@ -61,24 +59,20 @@ public class Graph {
         int nbRoutes = 0;
         double distance = distances.get(villeArrive) != null ? distances.get(villeArrive) : 0;
 
-        //stack to print in right way
-        Stack<Route> routesStack = new Stack<>();
+        LinkedList<Route> routesList = new LinkedList<>();
 
-        //stacking the routes
         do {
             nbRoutes++;
-            routesStack.add(chemin.get(villeArrive));
+            routesList.addFirst(chemin.get(villeArrive));
             villeArrive = chemin.get(villeArrive).getDepart();
         } while (chemin.get(villeArrive).getDepart() != villeDepart);
 
-        //final iteration for villeDepart
         nbRoutes++;
-        routesStack.add(chemin.get(villeArrive));
+        routesList.addFirst(chemin.get(villeArrive));
 
         System.out.println("Itinéraire de " + depart + " à " + arrivee + ":" + nbRoutes + " routes" + " et " + distance + " km");
-        //unstack to print in right way
-        while (!routesStack.isEmpty()) {
-            Route r = routesStack.pop();
+        while (!routesList.isEmpty()) {
+            Route r = routesList.removeFirst();
             System.out.println(r.getDepart() + " -> " + r.getArrivee() + " (" + Util.distance(r.getArrivee(),r.getDepart()) + " km)");
         }
 
@@ -86,7 +80,6 @@ public class Graph {
 
     public void calculerItineraireMinimisantKm(String depart, String arrivee) {
 
-        //get the city of departure and arrival
         Ville villeDepart = nomsVilles.get(depart);
         Ville villeArrive = nomsVilles.get(arrivee);
 
@@ -131,7 +124,6 @@ public class Graph {
         int nbRoutes = 0;
         double distance = 0;
 
-        //stack to print in right way
         Deque<Route> itineraire = new LinkedList<>();
         Ville v = villeArrive;
         while (v != villeDepart) {
@@ -153,11 +145,9 @@ public class Graph {
     //function for reading the file
     public void readFile(File file, File file2) {
         try {
-            // Création d'un BufferedReader pour lire le fichier
             BufferedReader lecteur = new BufferedReader(new FileReader(file));
             BufferedReader lecteur2 = new BufferedReader(new FileReader(file2));
 
-            // Lecture ligne par ligne
             String ligne;
             while ((ligne = lecteur.readLine()) != null) {
                 String[] mots = ligne.split(",");
@@ -188,8 +178,6 @@ public class Graph {
                 trajets.get(r.getDepart()).add(r);
             }
 
-
-            // Fermeture du BufferedReader
             lecteur.close();
             lecteur2.close();
         } catch (IOException e) {
